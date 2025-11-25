@@ -35,6 +35,7 @@ its-frontend/npm-debug.log*
 its-frontend/yarn-debug.log*
 its-frontend/yarn-error.log*
 its-frontend/pnpm-debug.log*
+its-frontend/package-lock.json
 
 # -----------------------
 # Env / secrets
