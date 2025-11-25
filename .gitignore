@@ -36,6 +36,16 @@ its-frontend/yarn-debug.log*
 its-frontend/yarn-error.log*
 its-frontend/pnpm-debug.log*
 its-frontend/package-lock.json
+its-frontend-2/node_modules/
+its-frontend-2/.parcel-cache/
+its-frontend-2/dist/
+its-frontend-2/build/
+its-frontend-2/.cache/
+its-frontend-2/npm-debug.log*
+its-frontend-2/yarn-debug.log*
+its-frontend-2/yarn-error.log*
+its-frontend-2/pnpm-debug.log*
+its-frontend-2/package-lock.json
 
 # -----------------------
 # Env / secrets
