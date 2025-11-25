@@ -29,6 +29,7 @@ export function Navigation({ user, currentPage, onNavigate, onLogout }: Navigati
   }, []);
 
   const getInitials = () => {
+      if (!user?.firstName || !user?.lastName) return '';
     return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
   };
 

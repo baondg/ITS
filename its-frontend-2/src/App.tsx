@@ -24,31 +24,14 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [editingContentId, setEditingContentId] = useState<string | null>(null);
 
-  const handleLogin = (email: string, password: string, role: UserRole) => {
-    // Mock login
-    setUser({
-      firstName: 'A',
-      lastName: 'Student',
-      email,
-      role: role || 'STUDENT',
-    });
-    setCurrentPage('dashboard');
-  };
+    const handleLogin = (userData: User) => {
 
-  const handleRegister = (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    role: UserRole
-  ) => {
-    // Mock register
-    setUser({
-      firstName,
-      lastName,
-      email,
-      role: role || 'STUDENT',
-    });
+      setUser(userData);
+      setCurrentPage("dashboard");
+    };
+
+  const handleRegister = (userData: User) => {
+    setUser(userData);
     setCurrentPage('dashboard');
   };
 
@@ -87,12 +70,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation
-        user={user}
-        currentPage={currentPage}
-        onNavigate={setCurrentPage}
-        onLogout={handleLogout}
-      />
+        {user && (
+          <Navigation
+            user={user}
+            currentPage={currentPage}
+            onNavigate={setCurrentPage}
+            onLogout={handleLogout}
+          />
+        )}
       
       <main className="pt-16">
         {currentPage === 'dashboard' && user.role === 'STUDENT' && (

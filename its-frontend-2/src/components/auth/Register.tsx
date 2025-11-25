@@ -5,13 +5,12 @@ import { Label } from '../ui/label';
 import { BookOpen } from 'lucide-react';
 
 interface RegisterProps {
-  onRegister: (
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string,
-    role: 'STUDENT' | 'INSTRUCTOR'
-  ) => void;
+  onRegister: (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'STUDENT' | 'INSTRUCTOR';
+  }) => void;
   onNavigateToLogin: () => void;
 }
 
@@ -22,14 +21,71 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [role, setRole] = useState<'STUDENT' | 'INSTRUCTOR'>('STUDENT');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert('Passwords do not match!');
+    setErrorMessage(null);
+
+      // 1. Check firstName và lastName chỉ chữ
+      const nameRegex = /^[A-Za-z]+$/;
+      if (!nameRegex.test(firstName)) {
+        setErrorMessage('First Name can only contain letters.');
+        return;
+      }
+      if (!nameRegex.test(lastName)) {
+        setErrorMessage('Last Name can only contain letters.');
+        return;
+      }
+      // 1. Check email hợp lệ
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setErrorMessage('Please enter a valid email address.');
+        return;
+      }
+      // 2. Check password length
+      if (password.length < 6 || password.length > 40) {
+        setErrorMessage('Password must be between 6 and 40 characters.');
+        return;
+      }
+      // 3. Check confirm password
+      if (password !== confirmPassword) {
+        setErrorMessage('Passwords do not match!');
+        return;
+      }
+
+    try {
+      const res = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role, firstName, lastName }),
+      });
+
+    if (!res.ok) {
+      if (res.status === 400) {
+        setErrorMessage('Email already exists.');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.message || 'Something went wrong. Please try again.');
+      }
       return;
     }
-    onRegister(email, password, firstName, lastName, role);
+
+      const data = await res.json();
+
+      // Lấy user object từ data.user
+      onRegister({
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        email: data.user.email,
+        role: data.user.role,
+      });
+
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Something went wrong. Please try again.');
+    }
   };
 
   return (
@@ -204,6 +260,18 @@ export default function Register({ onRegister, onNavigateToLogin }: RegisterProp
               >
                 Create Account
               </Button>
+              {errorMessage && (
+                <div
+                  style={{
+                    marginTop: "1em",
+                    color: "red",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {errorMessage}
+                </div>
+              )}
             </form>
 
             {/* Login Link */}

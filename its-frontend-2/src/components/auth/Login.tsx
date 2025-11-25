@@ -6,7 +6,12 @@ import { BookOpen } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface LoginProps {
-  onLogin: (email: string, password: string, role: 'STUDENT' | 'INSTRUCTOR') => void;
+  onLogin: (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'STUDENT' | 'INSTRUCTOR';
+  }) => void;
   onNavigateToRegister: () => void;
 }
 
@@ -14,10 +19,40 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'STUDENT' | 'INSTRUCTOR'>('STUDENT');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password, role);
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+
+        if (!res.ok) {
+          if (res.status === 400) {
+            setErrorMessage("Wrong email or password");
+          } else {
+            const data = await res.json();
+            setErrorMessage(data.message || "Something went wrong. Please try again.");
+          }
+          return;
+        }
+
+        const data = await res.json();
+        onLogin({
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          role: data.user.role,
+        });
+        setErrorMessage(null);
+      } catch (err) {
+          setErrorMessage("Something went wrong. Please try again.");
+          //alert("Login failed: " + err);
+      }
   };
 
   return (
@@ -25,7 +60,7 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
       {/* Left Side - Illustration/Gradient */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-500 via-blue-600 to-teal-500 p-12 items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEyYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMTIgMTJjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-20"></div>
-        
+
         <div className="relative z-10 max-w-md text-white">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -33,14 +68,14 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
             </div>
             <span className="text-white">ITS</span>
           </div>
-          
+
           <h1 className="text-white mb-4">
             Welcome to Intelligent Tutoring System
           </h1>
           <p className="text-blue-100 mb-8">
             Empowering learning through intelligent, personalized education. Join thousands of students and instructors transforming the way they teach and learn.
           </p>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
               <p className="text-white mb-1">Interactive</p>
@@ -73,33 +108,6 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Role Selection */}
-              <div className="space-y-2">
-                <Label>I am a...</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRole('STUDENT')}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      role === 'STUDENT'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    Student
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('INSTRUCTOR')}
-                    className={`p-3 rounded-lg border-2 transition-all ${
-                      role === 'INSTRUCTOR'
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    Instructor
-                  </button>
-                </div>
-              </div>
 
               {/* Email */}
               <div className="space-y-2">
@@ -135,6 +143,19 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
                 Log In
               </Button>
             </form>
+
+              {errorMessage && (
+                <div
+                  style={{
+                    marginTop: "1em",
+                    color: "red",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  {errorMessage}
+                </div>
+              )}
 
             {/* Register Link */}
             <div className="mt-6 text-center">
