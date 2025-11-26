@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Learning Material entity following Open/Closed Principle
@@ -21,6 +22,8 @@ public class LearningMaterial {
     private String title;
     
     private ContentType type;
+    
+    private FileFormat format; // File format (PDF, DOCX, MP4, etc.)
     
     private String content; // Can be text, URL, or file path
     
@@ -39,6 +42,9 @@ public class LearningMaterial {
     private String filePath; // For video/file uploads
     private String mimeType; // For file type validation
     private long fileSize; // In bytes
+    
+    private DifficultyLevel difficulty; // Beginner, Intermediate, Advanced, Expert
+    private List<String> tags; // Additional categorization
     
     private boolean published = false;
 
@@ -75,6 +81,14 @@ public class LearningMaterial {
 
     public void setType(ContentType type) {
         this.type = type;
+    }
+
+    public FileFormat getFormat() {
+        return format;
+    }
+
+    public void setFormat(FileFormat format) {
+        this.format = format;
     }
 
     public String getContent() {
@@ -147,5 +161,21 @@ public class LearningMaterial {
 
     public void setPublished(boolean published) {
         this.published = published;
+    }
+
+    public DifficultyLevel getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(DifficultyLevel difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

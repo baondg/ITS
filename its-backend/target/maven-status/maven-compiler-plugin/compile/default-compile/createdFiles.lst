@@ -9,6 +9,7 @@ com\its\domain\dto\LearningMaterialDto.class
 com\its\domain\entities\DifficultyLevel.class
 com\its\infrastructure\security\CustomUserDetailsService.class
 com\its\persistence\repositories\CourseRepository.class
+com\its\infrastructure\config\GlobalExceptionHandler.class
 com\its\domain\entities\ContentHistory.class
 com\its\persistence\repositories\UserRepository.class
 com\its\business\services\AuthenticationService.class
@@ -24,8 +25,12 @@ com\its\domain\entities\ContentType.class
 com\its\domain\dto\UserRegistrationDto.class
 com\its\domain\dto\UserLoginDto.class
 com\its\domain\entities\LearningMaterial.class
+com\its\domain\dto\UserProfileUpdateDto.class
+com\its\application\controllers\CourseController.class
 com\its\business\interfaces\IUserManagementService.class
 com\its\domain\dto\JwtAuthenticationResponse.class
+com\its\domain\entities\FileFormat.class
 com\its\domain\entities\UserRole.class
 com\its\infrastructure\config\SecurityConfig.class
+com\its\application\controllers\TopicController.class
 com\its\application\controllers\AuthController.class

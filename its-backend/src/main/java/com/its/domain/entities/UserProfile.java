@@ -10,6 +10,7 @@ public class UserProfile {
     private String avatar;
     private String bio;
     private String institution;
+    private String expertise;
 
     public UserProfile() {}
 
@@ -57,6 +58,14 @@ public class UserProfile {
 
     public void setInstitution(String institution) {
         this.institution = institution;
+    }
+
+    public String getExpertise() {
+        return expertise;
+    }
+
+    public void setExpertise(String expertise) {
+        this.expertise = expertise;
     }
 
     public String getFullName() {

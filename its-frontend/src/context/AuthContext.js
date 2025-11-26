@@ -23,10 +23,24 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     // Check if user is logged in on app start
     const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token validity (simplified)
-      setIsAuthenticated(true);
-      // In a real app, you'd verify the token with the backend
+    const storedUser = localStorage.getItem('user');
+    
+    if (token && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        // Invalid stored data, clear it
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setIsAuthenticated(false);
+      }
+    } else {
+      // No valid session, ensure clean state
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsAuthenticated(false);
     }
     setIsLoading(false);
   }, []);
@@ -37,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, user } = response.data;
       
       localStorage.setItem('token', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
       
@@ -55,6 +70,7 @@ export const AuthProvider = ({ children }) => {
       const { accessToken, user } = response.data;
       
       localStorage.setItem('token', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setIsAuthenticated(true);
       
@@ -69,8 +85,20 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
+  };
+
+  const updateUser = (updatedUserData) => {
+    setUser(prevUser => {
+      const updated = {
+        ...prevUser,
+        ...updatedUserData
+      };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const value = {
@@ -79,7 +107,8 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     login,
     register,
-    logout
+    logout,
+    updateUser
   };
 
   return (

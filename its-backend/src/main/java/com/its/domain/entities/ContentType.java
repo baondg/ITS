@@ -5,9 +5,12 @@ package com.its.domain.entities;
  * New types can be added without modifying existing code
  */
 public enum ContentType {
-    TEXT("Text", "text/plain"),
+    LECTURE("Lecture", "text/plain"),
     VIDEO("Video", "video/*"),
-    INTERACTIVE_EXERCISE("Interactive Exercise", "application/json");
+    QUIZ("Quiz", "application/json"),
+    EXERCISE("Exercise", "application/json"),
+    READING("Reading", "text/plain"),
+    ASSIGNMENT("Assignment", "application/json");
 
     private final String displayName;
     private final String mimeTypePattern;
@@ -30,6 +33,6 @@ public enum ContentType {
     }
 
     public boolean supportsInlineContent() {
-        return this == TEXT || this == INTERACTIVE_EXERCISE;
+        return this == LECTURE || this == QUIZ || this == EXERCISE || this == READING || this == ASSIGNMENT;
     }
 }

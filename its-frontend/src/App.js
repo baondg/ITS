@@ -5,8 +5,10 @@ import { ContentProvider } from './context/ContentContext';
 import Navigation from './components/common/Navigation';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import Profile from './components/auth/Profile';
 import Dashboard from './components/common/Dashboard';
 import ContentDashboard from './components/content/ContentDashboard';
+import ManageContent from './components/content/ManageContent';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './styles/App.css';
 
@@ -42,7 +44,13 @@ function App() {
                 
                 <Route path="/content/manage" element={
                   <ProtectedRoute roles={['INSTRUCTOR', 'ADMIN']}>
-                    <ContentDashboard />
+                    <ManageContent />
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile />
                   </ProtectedRoute>
                 } />
                 

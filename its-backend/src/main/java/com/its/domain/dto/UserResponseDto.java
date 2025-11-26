@@ -13,6 +13,8 @@ public class UserResponseDto {
     private String lastName;
     private String institution;
     private String avatar;
+    private String expertise;
+    private String bio;
 
     public UserResponseDto() {}
 
@@ -71,5 +73,21 @@ public class UserResponseDto {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getExpertise() {
+        return expertise;
+    }
+
+    public void setExpertise(String expertise) {
+        this.expertise = expertise;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

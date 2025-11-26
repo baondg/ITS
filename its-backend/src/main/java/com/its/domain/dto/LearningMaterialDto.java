@@ -3,6 +3,10 @@ package com.its.domain.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import com.its.domain.entities.ContentType;
+import com.its.domain.entities.FileFormat;
+import com.its.domain.entities.DifficultyLevel;
+
+import java.util.List;
 
 /**
  * Learning Material DTO for API requests
@@ -16,10 +20,15 @@ public class LearningMaterialDto {
     @NotBlank(message = "Content type is required")
     private String type;
     
+    private String format; // File format (PDF, DOCX, MP4, etc.)
+    
     private String content;
     
     @NotBlank(message = "Topic ID is required")
     private String topicId;
+    
+    private String difficulty; // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+    private List<String> tags;
     
     private boolean published;
 
@@ -40,6 +49,25 @@ public class LearningMaterialDto {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public FileFormat getFileFormat() {
+        if (format == null || format.isEmpty()) {
+            return null;
+        }
+        try {
+            return FileFormat.valueOf(format.toUpperCase().replace(" ", "_"));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public String getContent() {
@@ -70,7 +98,34 @@ public class LearningMaterialDto {
         try {
             return ContentType.valueOf(type.toUpperCase().replace(" ", "_"));
         } catch (IllegalArgumentException e) {
-            return ContentType.TEXT;
+            return ContentType.LECTURE;
         }
+    }
+
+    public String getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(String difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public DifficultyLevel getDifficultyLevel() {
+        if (difficulty == null || difficulty.isEmpty()) {
+            return null;
+        }
+        try {
+            return DifficultyLevel.valueOf(difficulty.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 }

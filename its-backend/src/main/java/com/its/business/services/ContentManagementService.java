@@ -44,10 +44,13 @@ public class ContentManagementService implements IContentManagementService {
         LearningMaterial material = new LearningMaterial();
         material.setTitle(contentDto.getTitle());
         material.setType(contentDto.getContentType());
+        material.setFormat(contentDto.getFileFormat());
         material.setContent(contentDto.getContent());
         material.setTopicId(contentDto.getTopicId());
         material.setCreatedBy(createdBy);
         material.setPublished(contentDto.isPublished());
+        material.setDifficulty(contentDto.getDifficultyLevel());
+        material.setTags(contentDto.getTags());
 
         LearningMaterial savedMaterial = materialRepository.save(material);
         
@@ -91,6 +94,9 @@ public class ContentManagementService implements IContentManagementService {
             throw new RuntimeException("Access denied");
         }
 
+        // Create history before deleting
+        saveContentHistory(material, "Content deleted", userId, 0);
+        
         materialRepository.deleteById(id);
         return true;
     }

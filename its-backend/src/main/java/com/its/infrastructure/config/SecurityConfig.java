@@ -56,6 +56,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/content/categories").permitAll()
                 .requestMatchers("/content").permitAll()
                 .requestMatchers("/content/search").permitAll()
                 .anyRequest().authenticated()

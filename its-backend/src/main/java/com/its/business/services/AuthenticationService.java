@@ -89,6 +89,8 @@ public class AuthenticationService implements IAuthenticationService {
             response.setLastName(user.getProfile().getLastName());
             response.setInstitution(user.getProfile().getInstitution());
             response.setAvatar(user.getProfile().getAvatar());
+            response.setExpertise(user.getProfile().getExpertise());
+            response.setBio(user.getProfile().getBio());
         }
         
         return response;
