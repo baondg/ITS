@@ -1,10 +1,19 @@
-import { useState } from 'react';
 import { ContentCard } from '../ContentCard';
-import { mockContent } from '../../lib/mockData';
 import { Plus, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DeleteConfirmationModal } from '../DeleteConfirmationModal';
 import { toast } from 'sonner@2.0.3';
+import { useState, useEffect } from 'react';
+import { fetchWithAuth } from '../../lib/api';
+
+interface ContentItem {
+  id: string;
+  title: string;
+  content: string;
+  topic: string;
+  contentType: 'TEXT' | 'VIDEO' | 'INTERACTIVE_EXERCISE';
+  published: boolean;
+}
 
 interface InstructorContentPageProps {
   onCreateContent: () => void;
@@ -12,34 +21,80 @@ interface InstructorContentPageProps {
 }
 
 export default function InstructorContentPage({ onCreateContent, onEditContent }: InstructorContentPageProps) {
+  const [contents, setContents] = useState<ContentItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [deletedIds, setDeletedIds] = useState<string[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [contentToDelete, setContentToDelete] = useState<{ id: string; title: string } | null>(null);
-  
-  // Filter out deleted items
-  const content = mockContent.filter(item => !deletedIds.includes(item.id));
+  const [loading, setLoading] = useState(false);
 
-  const filteredContent = content.filter(item => 
+    useEffect(() => {
+      const fetchContents = async () => {
+        setLoading(true);
+        try {
+          const res = await fetchWithAuth('http://localhost:8080/api/content');
+
+          if (!res.ok) throw new Error('Failed to fetch contents');
+
+          const data = await res.json();
+
+          const mappedContent = data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            topic: item.topicId,
+            contentType: item.type,
+            published: item.published,
+          }));
+
+          setContents(mappedContent);
+        } catch (err: any) {
+          toast.error('Failed to load content', { description: err.message });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchContents();
+    }, []);
+
+  const visibleContents = contents.filter(item => !deletedIds.includes(item.id));
+
+  const filteredContent = visibleContents.filter(item =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.topic.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDeleteClick = (id: string) => {
-    const item = mockContent.find(c => c.id === id);
+    const item = filteredContent.find(c => c.id === id);
     if (item) {
       setContentToDelete({ id, title: item.title });
       setDeleteModalOpen(true);
     }
   };
 
-  const handleConfirmDelete = () => {
-    if (contentToDelete) {
-      setDeletedIds([...deletedIds, contentToDelete.id]);
-      toast.success('Content deleted successfully!', {
-        description: 'The learning material has been removed.',
+  const handleConfirmDelete = async () => {
+    if (!contentToDelete) return;
+
+    try {
+        const res = await fetchWithAuth(
+          `http://localhost:8080/api/content/${contentToDelete.id}`,
+          { method: 'DELETE' }
+        );
+
+      if (!res.ok) throw new Error("Failed to delete content");
+
+      setContents(prev => prev.filter(item => item.id !== contentToDelete.id));
+
+      toast.success("Content deleted successfully!", {
+        description: "The learning material has been removed.",
       });
+
+    } catch (err: any) {
+      toast.error("Delete failed", { description: err.message });
+    } finally {
+      setDeleteModalOpen(false);
       setContentToDelete(null);
     }
   };

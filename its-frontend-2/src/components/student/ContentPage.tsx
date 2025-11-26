@@ -1,25 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ContentCard } from '../ContentCard';
-import { getStudentContent } from '../../lib/mockData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner@2.0.3';
+import { fetchWithAuth } from '../../lib/api';
 
+
+interface ContentItem {
+  id: string;
+  title: string;
+  content: string;
+  topic: string;
+  contentType: 'TEXT' | 'VIDEO' | 'INTERACTIVE_EXERCISE';
+  createdBy: string;
+  createdDate: string;
+}
 export default function StudentContentPage() {
-  const [selectedContent, setSelectedContent] = useState<any>(null);
+  const [contents, setContents] = useState<ContentItem[]>([]);
+  const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const content = getStudentContent();
+  const [loading, setLoading] = useState(false);
+
+
+    useEffect(() => {
+      const fetchContents = async () => {
+        setLoading(true);
+        try {
+          const res = await fetchWithAuth('http://localhost:8080/api/content');
+
+          if (!res.ok) throw new Error('Failed to fetch contents');
+
+          const data = await res.json();
+
+          const mapped = data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            topic: item.topicId,
+            contentType: item.type,
+            createdBy: item.createdBy,
+            createdDate: item.createdDate,
+            published: item.published,
+          }));
+
+          setContents(mapped.filter(item => item.published === true));
+        } catch (err: any) {
+          toast.error('Failed to load content', { description: err.message });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchContents();
+    }, []);
+
+    const filteredContent = contents.filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.topic.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   const handleViewContent = (id: string) => {
-    const item = content.find(c => c.id === id);
+    const item = filteredContent.find(c => c.id === id);
     setSelectedContent(item);
   };
 
-  // Filter content based on search query
-  const filteredContent = content.filter(item =>
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.topic.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

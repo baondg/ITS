@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../ui/switch';
 import { getContentById } from '../../lib/mockData';
 import { toast } from 'sonner';
+import { fetchWithAuth } from '../../lib/api';
 
 interface ContentFormProps {
   contentId?: string | null;
@@ -24,36 +25,82 @@ export default function ContentForm({ contentId, onSave, onCancel }: ContentForm
   });
 
   useEffect(() => {
-    if (contentId) {
-      const existingContent = getContentById(contentId);
-      if (existingContent) {
+    if (!contentId) return;
+    const fetchContent = async () => {
+      try {
+        const res = await fetchWithAuth(`http://localhost:8080/api/content/${contentId}`);
+
+        if (!res.ok) throw new Error("Failed to load content");
+
+        const data = await res.json();
+
+        console.log("EDIT FORM LOAD >>>", data);
+
         setFormData({
-          title: existingContent.title,
-          contentType: existingContent.contentType,
-          content: existingContent.content,
-          topic: existingContent.topic,
-          published: existingContent.published,
+          title: data.title,
+          contentType: data.type,
+          content: data.content,
+          topic: data.topicId,
+          published: data.published,
         });
+      } catch (err) {
+          toast.error("Failed to load content", { description: err.message });
       }
-    }
+    };
+
+    fetchContent();
   }, [contentId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Show success toast
-    if (contentId) {
-      toast.success('Content updated successfully!', {
-        description: 'Your learning material has been updated.',
-      });
-    } else {
-      toast.success('Content created successfully!', {
-        description: 'Your learning material has been saved.',
-      });
-    }
-    
-    onSave();
-  };
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+
+      const payload = {
+        title: formData.title,
+        type: formData.contentType,
+        content: formData.content,
+        topicId: formData.topic,
+        published: formData.published,
+      };
+        console.log("PAYLOAD SENT >>>", payload);
+
+
+      try {
+        let url = "http://localhost:8080/api/content";
+        let method = "POST";
+
+        if (contentId) {
+          url = `http://localhost:8080/api/content/${contentId}`;
+          method = "PUT";
+        }
+
+        const res = await fetchWithAuth(url, {
+          method,
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || "Request failed");
+        }
+
+        if (contentId) {
+          toast.success("Content updated successfully!", {
+            description: "Your learning material has been updated.",
+          });
+        } else {
+          toast.success("Content created successfully!", {
+            description: "Your learning material has been saved.",
+          });
+        }
+
+        onSave();
+      } catch (err: any) {
+        toast.error("Failed to save content", {
+          description: err.message,
+        });
+      }
+    };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

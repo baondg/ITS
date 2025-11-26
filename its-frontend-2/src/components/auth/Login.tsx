@@ -6,12 +6,13 @@ import { BookOpen } from 'lucide-react';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface LoginProps {
-  onLogin: (userData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: 'STUDENT' | 'INSTRUCTOR';
-  }) => void;
+    onLogin: (userData: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: 'STUDENT' | 'INSTRUCTOR';
+      token: string;
+    }) => void;
   onNavigateToRegister: () => void;
 }
 
@@ -42,11 +43,13 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
         }
 
         const data = await res.json();
+        console.log("LOGIN RESPONSE DATA:", data);
         onLogin({
           firstName: data.user.firstName,
           lastName: data.user.lastName,
           email: data.user.email,
           role: data.user.role,
+          token: data.accessToken,
         });
         setErrorMessage(null);
       } catch (err) {
