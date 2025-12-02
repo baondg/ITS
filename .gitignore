@@ -1,0 +1,43 @@
+# -----------------------
+# OS / Editor junk
+# -----------------------
+.DS_Store
+Thumbs.db
+*.iml
+.idea/
+.vscode/
+*.log
+
+# -----------------------
+# Java / Maven backend
+# -----------------------
+its-backend/target/
+its-backend/.classpath
+its-backend/.project
+its-backend/.settings/
+its-backend/.factorypath
+
+# Maven wrapper / local stuff
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+#mvnw
+#mvnw.cmd
+
+# -----------------------
+# Node / React frontend
+# -----------------------
+its-frontend/node_modules/
+its-frontend/.parcel-cache/
+its-frontend/dist/
+its-frontend/build/
+its-frontend/.cache/
+its-frontend/npm-debug.log*
+its-frontend/yarn-debug.log*
+its-frontend/yarn-error.log*
+its-frontend/pnpm-debug.log*
+its-frontend/package-lock.json
+
+# -----------------------
+# Env / secrets
+# -----------------------
+**/src/main/resources/env.properties
